@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 int main()
 {
     int n, m, i, j, k, y, alloc[20][20], max[20][20], avail[50], ind = 0;
