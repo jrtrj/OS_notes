@@ -19,36 +19,38 @@ int main() {
         remaining_bt[i] = bt[i]; // Initialize remaining burst time
     }
 
-    // Round Robin Scheduling Logic
+    int i = 0;
     while (completed != n) {
-        int all_idle = 1; // Flag to check if CPU is idle
+        int done_something = 0;
+        if (remaining_bt[i] > 0 && at[i] <= current_time) {
+            int exec_time = (remaining_bt[i] > time_quantum) ? time_quantum : remaining_bt[i];
+            remaining_bt[i] -= exec_time;
+            current_time += exec_time;
+            done_something = 1;
 
-        for (int i = 0; i < n; i++) {
-            if (remaining_bt[i] > 0 && at[i] <= current_time) {
-                all_idle = 0; // CPU is not idle
-
-                // Execute the process for the time quantum or remaining time, whichever is smaller
-                int execute_time = (remaining_bt[i] > time_quantum) ? time_quantum : remaining_bt[i];
-                remaining_bt[i] -= execute_time;
-                current_time += execute_time;
-
-                // If the process is completed
-                if (remaining_bt[i] == 0) {
-                    completed++;
-                    ct[i] = current_time;
-                    tat[i] = ct[i] - at[i];
-                    wt[i] = tat[i] - bt[i];
-                }
+            if (remaining_bt[i] == 0) {
+                completed++;
+                ct[i] = current_time;
+                tat[i] = ct[i] - at[i];
+                wt[i] = tat[i] - bt[i];
             }
         }
 
-        // If no process was executed in this cycle, increment time
-        if (all_idle) {
-            current_time++;
+        i = (i + 1) % n; // Rotate circularly
+
+        if (!done_something) {
+            int all_idle = 1;
+            for (int j = 0; j < n; j++) {
+                if (remaining_bt[j] > 0 && at[j] <= current_time) {
+                    all_idle = 0;
+                    break;
+                }
+            }
+            if (all_idle) current_time++;
         }
     }
 
-    // Calculate averages and print results
+    // Display output
     float avg_tat = 0, avg_wt = 0;
     printf("\nProcess\tAT\tBT\tCT\tTAT\tWT\n");
     for (int i = 0; i < n; i++) {
