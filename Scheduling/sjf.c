@@ -1,55 +1,55 @@
-#include <stdio.h>
+#include<stdio.h>
 
-int main() {
-    int n, p[10], at[10], bt[10], wt[10], tat[10], ct[10], completed[10] = {0};
-    float total_tat = 0, total_wt = 0;
-    int current_time = 0, completed_processes = 0;
+struct process{
+    int id,at,bt,ct,tat,wt,stat;
+}p[20];
 
-    printf("Enter the number of processes: ");
-    scanf("%d", &n);
+void main(){
+    int i,n;
+    float ttat=0,twt=0,atat,awt;
+    int completed=0,current=0;
 
-    printf("Enter Process No, Arrival Time, Burst Time:\n");
-    for (int i = 0; i < n; i++) {
-        scanf("%d %d %d", &p[i], &at[i], &bt[i]);
+    printf("ENter the limit:");
+    scanf("%d",&n);
+    printf("Enter the details\n");
+    for(i=0;i<n;i++){
+        printf("Enter ID,AT,BT");
+        scanf("%d%d%d",&p[i].id,&p[i].at,&p[i].bt);
+        p[i].stat=0;
     }
 
-    while (completed_processes < n) {
-        int shortest_job = -1;
-        int shortest_bt = 9999;
-
-        for (int i = 0; i < n; i++) {
-            if (!completed[i] && at[i] <= current_time && bt[i] < shortest_bt) {
-                shortest_bt = bt[i];
-                shortest_job = i;
+    while(completed!=n){
+        int index=-1,min=32765;
+        for(i=0;i<n;i++){
+            if(p[i].at<=current && p[i].stat==0 && p[i].bt<min){
+                min=p[i].bt;
+                index=i;
             }
         }
+        if(index==-1){
+            current++;
+        }
+        else{
+            current+=p[index].bt;
+            p[index].ct=current;
+            completed++;
+            p[index].stat=1;
+            p[index].tat=p[index].ct-p[index].at;
+            p[index].wt=p[index].tat-p[index].bt;
+            ttat+=p[index].tat;
+            twt+=p[index].wt;
 
-        if (shortest_job == -1) {
-            current_time++;  // Idle CPU if no job is available
-        } else {
-            // Execute the shortest job
-            current_time += bt[shortest_job];
-            ct[shortest_job] = current_time;
-            tat[shortest_job] = ct[shortest_job] - at[shortest_job];
-            wt[shortest_job] = tat[shortest_job] - bt[shortest_job];
-            completed[shortest_job] = 1;
-            completed_processes++;
         }
     }
+    atat=ttat/n;
+    awt=twt/n;
 
-    // Calculate totals
-    for (int i = 0; i < n; i++) {
-        total_tat += tat[i];
-        total_wt += wt[i];
+    printf("ID\tAT\tBT\tCT\tTAT\tWT\n");
+    for(i=0;i<n;i++){
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\n",p[i].id,p[i].at,p[i].bt,p[i].ct,p[i].tat,p[i].wt);
+
     }
-
-    printf("\nProcess\tAT\tBT\tCT\tTAT\tWT\n");
-    for (int i = 0; i < n; i++) {
-        printf("P%d\t%d\t%d\t%d\t%d\t%d\n", p[i], at[i], bt[i], ct[i], tat[i], wt[i]);
-    }
-
-    printf("\nAverage Turnaround Time: %.2f\n", total_tat / n);
-    printf("Average Waiting Time: %.2f\n", total_wt / n);
-
-    return 0;
+    
+    printf("AVg TAT:%f",atat);
+    printf("Avg WT:%f",awt);
 }
